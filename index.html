@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rasha's Educational Games</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        h1 {
+            color: white;
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.2em;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .game-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .game-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .game-icon {
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+
+        .game-title {
+            color: #2d3748;
+            font-size: 1.4em;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .game-description {
+            color: #718096;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .play-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .play-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            color: white;
+            font-size: 0.9em;
+            animation: fadeIn 1s ease;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2em; }
+            .games-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎮 Rasha's Educational Games 📚</h1>
+            <p class="subtitle">Fun Language Learning Activities for Everyone!</p>
+        </header>
+
+        <div class="games-grid">
+            <div class="game-card">
+                <div class="game-icon">🏁</div>
+                <h2 class="game-title">Sentence Builder Race</h2>
+                <p class="game-description">Race against time to build correct sentences! Test your grammar skills in this exciting challenge.</p>
+                <a href="sentence-builder-race.html" class="play-button">Play Now →</a>
+            </div>
+
+            <div class="game-card">
+                <div class="game-icon">🔄</div>
+                <h2 class="game-title">Sentence Swapper</h2>
+                <p class="game-description">Swap words to create new sentences! Learn about sentence structure in a fun, interactive way.</p>
+                <a href="sentence-swapper-game.html" class="play-button">Play Now →</a>
+            </div>
+
+            <div class="game-card">
+                <div class="game-icon">📖</div>
+                <h2 class="game-title">Story Ladder Visual</h2>
+                <p class="game-description">Climb the story ladder! Build narratives step by step with visual guidance.</p>
+                <a href="story-ladder-visual.html" class="play-button">Play Now →</a>
+            </div>
+
+            <div class="game-card">
+                <div class="game-icon">🚂</div>
+                <h2 class="game-title">Sentence Train</h2>
+                <p class="game-description">All aboard the sentence train! Connect words like train cars to form complete sentences.</p>
+                <a href="sentence-train-game.html" class="play-button">Play Now →</a>
+            </div>
+
+            <div class="game-card">
+                <div class="game-icon">🗺️</div>
+                <h2 class="game-title">Sentence Journey Map</h2>
+                <p class="game-description">Navigate through sentence structures! Follow the map to language learning success.</p>
+                <a href="sentence-journey-map.html" class="play-button">Play Now →</a>
+            </div>
+
+            <div class="game-card">
+                <div class="game-icon">⏱️</div>
+                <h2 class="game-title">Minute Madness</h2>
+                <p class="game-description">How many can you complete in a minute? Fast-paced language challenges await!</p>
+                <a href="minute-madness-game.html" class="play-button">Play Now →</a>
+            </div>
+        </div>
+
+        <footer>
+            <p>© 2025 Rasha's Educational Site | Made with ❤️ for Language Learners</p>
+        </footer>
+    </div>
+</body>
+</html>
