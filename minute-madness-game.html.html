@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minute Madness</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #FF6B6B 0%, #4ECDC4 25%, #45B7D1 50%, #96CEB4 75%, #FFEAA7 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 10s ease infinite;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .title {
+            color: white;
+            font-size: 48px;
+            margin-bottom: 20px;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .timer-container {
+            background: white;
+            border-radius: 50%;
+            width: 200px;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .timer-display {
+            font-size: 72px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .timer-display.warning {
+            color: #FFA500;
+            animation: blink 1s ease-in-out infinite;
+        }
+
+        .timer-display.danger {
+            color: #FF0000;
+            animation: blink 0.5s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .timer-ring {
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            width: 210px;
+            height: 210px;
+            border-radius: 50%;
+            border: 5px solid #ddd;
+        }
+
+        .timer-ring.active {
+            border: 5px solid #4ECDC4;
+            animation: rotate 60s linear;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .topic-container {
+            background: white;
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .topic-label {
+            font-size: 20px;
+            color: #666;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .topic-display {
+            font-size: 36px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+        }
+
+        .topic-icon {
+            font-size: 48px;
+            margin-top: 10px;
+        }
+
+        .writing-area {
+            background: white;
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 800px;
+            display: none;
+        }
+
+        .writing-area.active {
+            display: block;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .sentence-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 20px;
+            font-family: 'Comic Sans MS', 'Arial', sans-serif;
+            border: 3px solid #ddd;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .sentence-input:focus {
+            outline: none;
+            border-color: #4ECDC4;
+            box-shadow: 0 0 10px rgba(78, 205, 196, 0.3);
+        }
+
+        .add-btn {
+            background: linear-gradient(135deg, #4ECDC4, #44A08D);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 20px;
+            font-family: 'Comic Sans MS', 'Arial', sans-serif;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .add-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .add-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .sentences-list {
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 15px;
+        }
+
+        .sentence-item {
+            background: white;
+            padding: 10px 15px;
+            margin: 5px 0;
+            border-radius: 10px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: popIn 0.3s ease-out;
+        }
+
+        @keyframes popIn {
+            from {
+                transform: scale(0);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .sentence-number {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .control-btn {
+            background: white;
+            color: #333;
+            border: 3px solid #333;
+            padding: 15px 30px;
+            font-size: 24px;
+            font-family: 'Comic Sans MS', 'Arial', sans-serif;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .start-btn {
+            background: linear-gradient(135deg, #00C851, #00FF00);
+            color: white;
+            border: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .start-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .topic-btn {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: white;
+            border: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .topic-btn:hover {
+            transform: rotate(360deg);
+        }
+
+        .reset-btn {
+            background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+            color: white;
+            border: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .reset-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .results {
+            background: white;
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+            display: none;
+        }
+
+        .results.active {
+            display: block;
+            animation: celebrate 0.5s ease-out;
+        }
+
+        @keyframes celebrate {
+            0% { transform: scale(0) rotate(0deg); }
+            50% { transform: scale(1.1) rotate(180deg); }
+            100% { transform: scale(1) rotate(360deg); }
+        }
+
+        .results-title {
+            font-size: 36px;
+            color: #4ECDC4;
+            margin-bottom: 20px;
+        }
+
+        .results-count {
+            font-size: 48px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+        }
+
+        .medal {
+            font-size: 72px;
+            animation: bounce 1s ease-in-out infinite;
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #FFD700;
+            animation: fall 3s linear infinite;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+            }
+        }
+
+        .instructions {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            max-width: 600px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .instructions h3 {
+            color: #4ECDC4;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 600px) {
+            .title { font-size: 32px; }
+            .topic-display { font-size: 28px; }
+            .timer-display { font-size: 56px; }
+            .control-btn { font-size: 18px; padding: 12px 24px; }
+        }
+    </style>
+</head>
+<body>
+    <h1 class="title">
+        ⏰ Minute Madness ⏰
+    </h1>
+
+    <div class="timer-container">
+        <div class="timer-ring" id="timerRing"></div>
+        <div class="timer-display" id="timer">60</div>
+    </div>
+
+    <div class="controls">
+        <button class="control-btn start-btn" onclick="startGame()">🚀 START!</button>
+        <button class="control-btn topic-btn" onclick="getNewTopic()">🎲 NEW TOPIC</button>
+        <button class="control-btn reset-btn" onclick="resetGame()">🔄 RESET</button>
+    </div>
+
+    <div class="topic-container">
+        <div class="topic-label">✨ Write sentences about... ✨</div>
+        <div class="topic-display" id="topic">Click "NEW TOPIC" to begin!</div>
+        <div class="topic-icon" id="topicIcon"></div>
+    </div>
+
+    <div class="writing-area" id="writingArea">
+        <input type="text" 
+               class="sentence-input" 
+               id="sentenceInput" 
+               placeholder="Type your sentence here and press Enter or click Add!"
+               onkeypress="handleKeyPress(event)">
+        <button class="add-btn" onclick="addSentence()">➕ Add Sentence!</button>
+        
+        <div class="sentences-list" id="sentencesList">
+            <!-- Sentences will appear here -->
+        </div>
+    </div>
+
+    <div class="results" id="results">
+        <div class="results-title">🎉 TIME'S UP! 🎉</div>
+        <div class="results-count" id="resultsCount">You wrote 0 sentences!</div>
+        <div class="medal" id="medal"></div>
+        <p style="font-size: 20px; color: #666; margin-top: 20px;">
+            Now share your SILLIEST sentence with the class! 😄
+        </p>
+    </div>
+
+    <div class="instructions">
+        <h3>🎮 How to Play!</h3>
+        <p style="color: #666; font-size: 18px; line-height: 1.5;">
+            <strong>Get a topic</strong> by clicking "NEW TOPIC" 🎲<br>
+            <strong>Click START</strong> to begin the 60-second countdown ⏰<br>
+            <strong>Write as many sentences</strong> as you can about the topic! ✍️<br>
+            <strong>Share your silliest one</strong> when time's up! 🎉
+        </p>
+    </div>
+
+    <script>
+        const topics = [
+            { text: 'Pizza 🍕', icon: '🍕' },
+            { text: 'My Pet 🐶', icon: '🐶' },
+            { text: 'Recess Time 🏃', icon: '🏃' },
+            { text: 'Ice Cream 🍦', icon: '🍦' },
+            { text: 'Dinosaurs 🦕', icon: '🦕' },
+            { text: 'My Bedroom 🛏️', icon: '🛏️' },
+            { text: 'Superheroes 🦸', icon: '🦸' },
+            { text: 'The Beach 🏖️', icon: '🏖️' },
+            { text: 'Birthday Parties 🎂', icon: '🎂' },
+            { text: 'Robots 🤖', icon: '🤖' },
+            { text: 'Space 🚀', icon: '🚀' },
+            { text: 'Cookies 🍪', icon: '🍪' },
+            { text: 'Rain ☔', icon: '☔' },
+            { text: 'My Teacher 👩‍🏫', icon: '👩‍🏫' },
+            { text: 'Dragons 🐉', icon: '🐉' },
+            { text: 'Playground 🎠', icon: '🎠' },
+            { text: 'Monsters 👹', icon: '👹' },
+            { text: 'Books 📚', icon: '📚' },
+            { text: 'Video Games 🎮', icon: '🎮' },
+            { text: 'Snow ❄️', icon: '❄️' },
+            { text: 'Candy 🍭', icon: '🍭' },
+            { text: 'Sports ⚽', icon: '⚽' },
+            { text: 'Music 🎵', icon: '🎵' },
+            { text: 'Toys 🧸', icon: '🧸' },
+            { text: 'Summer Vacation 🌞', icon: '🌞' },
+            { text: 'Halloween 🎃', icon: '🎃' },
+            { text: 'My Family 👨‍👩‍👧‍👦', icon: '👨‍👩‍👧‍👦' },
+            { text: 'Unicorns 🦄', icon: '🦄' },
+            { text: 'The Zoo 🦁', icon: '🦁' },
+            { text: 'Breakfast 🥞', icon: '🥞' }
+        ];
+
+        let currentTopic = null;
+        let timeLeft = 60;
+        let timerInterval = null;
+        let sentences = [];
+        let gameActive = false;
+
+        function getNewTopic() {
+            const randomIndex = Math.floor(Math.random() * topics.length);
+            currentTopic = topics[randomIndex];
+            
+            const topicDisplay = document.getElementById('topic');
+            const topicIcon = document.getElementById('topicIcon');
+            
+            topicDisplay.style.transform = 'scale(0)';
+            setTimeout(() => {
+                topicDisplay.textContent = currentTopic.text;
+                topicIcon.textContent = currentTopic.icon;
+                topicDisplay.style.transform = 'scale(1)';
+                
+                // Create sparkles
+                createSparkles();
+            }, 300);
+        }
+
+        function startGame() {
+            if (!currentTopic) {
+                getNewTopic();
+                setTimeout(startGame, 500);
+                return;
+            }
+            
+            if (gameActive) return;
+            
+            gameActive = true;
+            sentences = [];
+            timeLeft = 60;
+            
+            // Reset UI
+            document.getElementById('writingArea').classList.add('active');
+            document.getElementById('sentencesList').innerHTML = '';
+            document.getElementById('results').classList.remove('active');
+            document.getElementById('sentenceInput').disabled = false;
+            document.getElementById('sentenceInput').focus();
+            document.querySelector('.add-btn').disabled = false;
+            
+            // Start timer animation
+            document.getElementById('timerRing').classList.add('active');
+            
+            // Start countdown
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimer();
+                
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        function updateTimer() {
+            const timerDisplay = document.getElementById('timer');
+            timerDisplay.textContent = timeLeft;
+            
+            // Change color based on time
+            timerDisplay.classList.remove('warning', 'danger');
+            if (timeLeft <= 10) {
+                timerDisplay.classList.add('danger');
+            } else if (timeLeft <= 20) {
+                timerDisplay.classList.add('warning');
+            }
+        }
+
+        function addSentence() {
+            const input = document.getElementById('sentenceInput');
+            const sentence = input.value.trim();
+            
+            if (sentence && gameActive) {
+                sentences.push(sentence);
+                
+                // Add to display
+                const sentencesList = document.getElementById('sentencesList');
+                const sentenceItem = document.createElement('div');
+                sentenceItem.className = 'sentence-item';
+                sentenceItem.innerHTML = `
+                    <span class="sentence-number">${sentences.length}</span>
+                    <span>${sentence}</span>
+                `;
+                sentencesList.insertBefore(sentenceItem, sentencesList.firstChild);
+                
+                // Clear input
+                input.value = '';
+                input.focus();
+                
+                // Celebration for every 5 sentences
+                if (sentences.length % 5 === 0) {
+                    createConfetti();
+                }
+            }
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                addSentence();
+            }
+        }
+
+        function endGame() {
+            gameActive = false;
+            clearInterval(timerInterval);
+            
+            // Disable input
+            document.getElementById('sentenceInput').disabled = true;
+            document.querySelector('.add-btn').disabled = true;
+            document.getElementById('timerRing').classList.remove('active');
+            
+            // Show results
+            const results = document.getElementById('results');
+            const resultsCount = document.getElementById('resultsCount');
+            const medal = document.getElementById('medal');
+            
+            resultsCount.textContent = `You wrote ${sentences.length} sentence${sentences.length !== 1 ? 's' : ''}!`;
+            
+            // Award medals
+            if (sentences.length >= 15) {
+                medal.textContent = '🏆';
+                createMassiveConfetti();
+            } else if (sentences.length >= 10) {
+                medal.textContent = '🥇';
+                createConfetti();
+            } else if (sentences.length >= 5) {
+                medal.textContent = '🥈';
+            } else if (sentences.length >= 1) {
+                medal.textContent = '🥉';
+            } else {
+                medal.textContent = '😊';
+            }
+            
+            results.classList.add('active');
+        }
+
+        function resetGame() {
+            gameActive = false;
+            clearInterval(timerInterval);
+            timeLeft = 60;
+            sentences = [];
+            
+            // Reset UI
+            document.getElementById('timer').textContent = '60';
+            document.getElementById('timer').classList.remove('warning', 'danger');
+            document.getElementById('writingArea').classList.remove('active');
+            document.getElementById('results').classList.remove('active');
+            document.getElementById('sentencesList').innerHTML = '';
+            document.getElementById('sentenceInput').value = '';
+            document.getElementById('sentenceInput').disabled = false;
+            document.querySelector('.add-btn').disabled = false;
+            document.getElementById('timerRing').classList.remove('active');
+            
+            // Clear confetti
+            document.querySelectorAll('.confetti').forEach(c => c.remove());
+        }
+
+        function createSparkles() {
+            for (let i = 0; i < 10; i++) {
+                const sparkle = document.createElement('div');
+                sparkle.innerHTML = '✨';
+                sparkle.style.position = 'fixed';
+                sparkle.style.left = Math.random() * window.innerWidth + 'px';
+                sparkle.style.top = Math.random() * window.innerHeight + 'px';
+                sparkle.style.fontSize = Math.random() * 20 + 10 + 'px';
+                sparkle.style.pointerEvents = 'none';
+                sparkle.style.animation = 'fall 2s linear';
+                sparkle.style.zIndex = '1000';
+                document.body.appendChild(sparkle);
+                
+                setTimeout(() => sparkle.remove(), 2000);
+            }
+        }
+
+        function createConfetti() {
+            const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#FFD700'];
+            
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * window.innerWidth + 'px';
+                    confetti.style.top = '-10px';
+                    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                    confetti.style.animationDuration = (Math.random() * 1 + 2) + 's';
+                    document.body.appendChild(confetti);
+                    
+                    setTimeout(() => confetti.remove(), 3000);
+                }, i * 50);
+            }
+        }
+
+        function createMassiveConfetti() {
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => createConfetti(), i * 200);
+            }
+        }
+    </script>
+</body>
+</html>

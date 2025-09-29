@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Story Ladder</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Comic Sans MS', 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .title {
+            color: white;
+            font-size: 48px;
+            margin-bottom: 20px;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .example-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .example-btn {
+            background: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 18px;
+            font-family: 'Comic Sans MS', 'Arial', sans-serif;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .example-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .example-btn.active {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: white;
+            font-weight: bold;
+        }
+
+        .ladder-container {
+            position: relative;
+            width: 90%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .ladder-sides {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .ladder-side {
+            position: absolute;
+            width: 20px;
+            height: 100%;
+            background: linear-gradient(90deg, #8B4513, #A0522D);
+            box-shadow: 4px 0 8px rgba(0,0,0,0.3);
+        }
+
+        .ladder-side.left {
+            left: 40px;
+        }
+
+        .ladder-side.right {
+            right: 40px;
+        }
+
+        .rung {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 15px 0;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            opacity: 0;
+            animation: slideIn 0.5s ease-out forwards;
+        }
+
+        .rung:nth-child(1) { animation-delay: 0.1s; }
+        .rung:nth-child(2) { animation-delay: 0.2s; }
+        .rung:nth-child(3) { animation-delay: 0.3s; }
+        .rung:nth-child(4) { animation-delay: 0.4s; }
+        .rung:nth-child(5) { animation-delay: 0.5s; }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .rung:hover {
+            transform: translateX(10px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .rung-number {
+            position: absolute;
+            left: -70px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: translateY(-50%) scale(1); }
+            50% { transform: translateY(-50%) scale(1.1); }
+        }
+
+        .rung-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .sentence {
+            font-size: 26px;
+            color: #333;
+            flex-grow: 1;
+            margin-left: 20px;
+        }
+
+        .new-word {
+            color: #FF1493;
+            font-weight: bold;
+            background: linear-gradient(90deg, transparent, yellow, transparent);
+            background-size: 200% 100%;
+            animation: highlight 2s ease-in-out;
+        }
+
+        @keyframes highlight {
+            0% { background-position: -100% 0; }
+            100% { background-position: 100% 0; }
+        }
+
+        .emoji {
+            font-size: 40px;
+            margin-left: 20px;
+            animation: spin 3s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .star-burst {
+            position: absolute;
+            right: -30px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 30px;
+            animation: twinkle 1.5s ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 1; transform: translateY(-50%) scale(1); }
+            50% { opacity: 0.5; transform: translateY(-50%) scale(1.2); }
+        }
+
+        .ground {
+            width: 100%;
+            height: 60px;
+            background: linear-gradient(180deg, #90EE90, #228B22);
+            border-radius: 50% 50% 0 0;
+            margin-top: 20px;
+            position: relative;
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.2);
+        }
+
+        .grass {
+            position: absolute;
+            bottom: 100%;
+            width: 30px;
+            height: 40px;
+            background: #228B22;
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        }
+
+        .grass:nth-child(1) { left: 10%; }
+        .grass:nth-child(2) { left: 25%; }
+        .grass:nth-child(3) { left: 40%; }
+        .grass:nth-child(4) { left: 60%; }
+        .grass:nth-child(5) { left: 75%; }
+        .grass:nth-child(6) { left: 90%; }
+
+        .instructions {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin: 30px auto;
+            max-width: 600px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .instructions h3 {
+            color: #FF1493;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .instructions p {
+            color: #666;
+            font-size: 18px;
+            line-height: 1.5;
+        }
+
+        .theme-icon {
+            position: absolute;
+            right: 20px;
+            bottom: 10px;
+            width: 80px;
+            height: 80px;
+            animation: wiggle 2s ease-in-out infinite;
+            font-size: 60px;
+        }
+
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(-5deg); }
+            50% { transform: rotate(5deg); }
+        }
+
+        @media (max-width: 600px) {
+            .title { font-size: 32px; }
+            .sentence { font-size: 20px; }
+            .rung { padding: 20px; }
+            .rung-number { 
+                left: -45px;
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+            }
+            .example-btn { font-size: 16px; padding: 10px 15px; }
+        }
+    </style>
+</head>
+<body>
+    <h1 class="title">🪜 Story Ladder 🪜</h1>
+    
+    <div class="example-selector">
+        <button class="example-btn active" onclick="showExample(0, this)">🐕 Dog Story</button>
+        <button class="example-btn" onclick="showExample(1, this)">🐱 Cat Adventure</button>
+        <button class="example-btn" onclick="showExample(2, this)">🦋 Butterfly</button>
+        <button class="example-btn" onclick="showExample(3, this)">🎂 Birthday</button>
+        <button class="example-btn" onclick="showExample(4, this)">🚲 Bike Ride</button>
+        <button class="example-btn" onclick="showExample(5, this)">🌈 Rainbow</button>
+    </div>
+
+    <div class="ladder-container">
+        <div class="ladder-sides">
+            <div class="ladder-side left"></div>
+            <div class="ladder-side right"></div>
+        </div>
+
+        <div id="ladder-rungs">
+            <!-- Rungs will be inserted here by JavaScript -->
+        </div>
+
+        <div class="ground">
+            <div class="grass"></div>
+            <div class="grass"></div>
+            <div class="grass"></div>
+            <div class="grass"></div>
+            <div class="grass"></div>
+            <div class="grass"></div>
+        </div>
+    </div>
+
+    <div class="instructions">
+        <h3>🎯 How to Climb the Story Ladder!</h3>
+        <p>
+            <strong>Pick a story!</strong> Choose from the buttons above.<br>
+            <strong>Start at the bottom!</strong> Begin with a simple sentence.<br>
+            <strong>Add one new detail</strong> at each step (shown in pink!).<br>
+            <strong>Click each rung</strong> to change its color!<br>
+            <strong>Can you make it to the top?</strong> Each step is a victory! 🎉
+        </p>
+    </div>
+
+    <script>
+        const examples = [
+            {
+                icon: '🐕',
+                rungs: [
+                    { base: 'I see a dog.', new: '' },
+                    { base: 'I see a ', new: 'brown', after: ' dog.' },
+                    { base: 'I see a brown dog ', new: 'running', after: '.' },
+                    { base: 'I see a brown dog running ', new: 'in the park', after: '.' },
+                    { base: 'I see a brown dog running in the park ', new: 'with my friend', after: '.' }
+                ]
+            },
+            {
+                icon: '🐱',
+                rungs: [
+                    { base: 'The cat sits.', new: '' },
+                    { base: 'The ', new: 'fluffy', after: ' cat sits.' },
+                    { base: 'The fluffy cat sits ', new: 'on the mat', after: '.' },
+                    { base: 'The fluffy cat sits on the mat ', new: 'by the door', after: '.' },
+                    { base: 'The fluffy cat sits on the mat by the door ', new: 'every morning', after: '.' }
+                ]
+            },
+            {
+                icon: '🦋',
+                rungs: [
+                    { base: 'A butterfly flies.', new: '' },
+                    { base: 'A ', new: 'colorful', after: ' butterfly flies.' },
+                    { base: 'A colorful butterfly flies ', new: 'over flowers', after: '.' },
+                    { base: 'A colorful butterfly flies over ', new: 'the red', after: ' flowers.' },
+                    { base: 'A colorful butterfly flies over the red flowers ', new: 'in the garden', after: '.' }
+                ]
+            },
+            {
+                icon: '🎂',
+                rungs: [
+                    { base: 'We eat cake.', new: '' },
+                    { base: 'We eat ', new: 'chocolate', after: ' cake.' },
+                    { base: 'We eat chocolate cake ', new: 'at the party', after: '.' },
+                    { base: 'We eat chocolate cake at the ', new: 'birthday', after: ' party.' },
+                    { base: 'We eat chocolate cake at the birthday party ', new: 'with balloons', after: '.' }
+                ]
+            },
+            {
+                icon: '🚲',
+                rungs: [
+                    { base: 'I ride.', new: '' },
+                    { base: 'I ride ', new: 'my bike', after: '.' },
+                    { base: 'I ride my ', new: 'blue', after: ' bike.' },
+                    { base: 'I ride my blue bike ', new: 'to school', after: '.' },
+                    { base: 'I ride my blue bike to school ', new: 'every day', after: '.' }
+                ]
+            },
+            {
+                icon: '🌈',
+                rungs: [
+                    { base: 'The rainbow appears.', new: '' },
+                    { base: 'The ', new: 'bright', after: ' rainbow appears.' },
+                    { base: 'The bright rainbow appears ', new: 'after rain', after: '.' },
+                    { base: 'The bright rainbow appears after ', new: 'the', after: ' rain.' },
+                    { base: 'The bright rainbow appears after the rain ', new: 'in the sky', after: '.' }
+                ]
+            }
+        ];
+
+        const emojis = ['🎈', '✨', '🌟', '🏆', '👑'];
+
+        function showExample(index, button) {
+            // Update active button
+            document.querySelectorAll('.example-btn').forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+
+            // Get the example data
+            const example = examples[index];
+            const ladderRungs = document.getElementById('ladder-rungs');
+            
+            // Clear existing rungs
+            ladderRungs.innerHTML = '';
+            
+            // Create rungs in reverse order (top to bottom)
+            for (let i = example.rungs.length - 1; i >= 0; i--) {
+                const rung = example.rungs[i];
+                const rungDiv = document.createElement('div');
+                rungDiv.className = 'rung';
+                rungDiv.onclick = function() {
+                    const colors = ['#FFE4B5', '#E0FFFF', '#FFE4E1', '#F0FFF0', '#FFEBCD'];
+                    this.style.background = colors[Math.floor(Math.random() * colors.length)];
+                };
+                
+                let sentenceHTML = rung.base;
+                if (rung.new) {
+                    sentenceHTML += `<span class="new-word">${rung.new}</span>`;
+                }
+                if (rung.after) {
+                    sentenceHTML += rung.after;
+                }
+                
+                rungDiv.innerHTML = `
+                    <div class="rung-number">${i + 1}</div>
+                    <div class="rung-content">
+                        <div class="sentence">
+                            ${sentenceHTML}
+                        </div>
+                        <span class="emoji">${emojis[Math.min(i, emojis.length - 1)]}</span>
+                    </div>
+                    ${i === example.rungs.length - 1 ? '<span class="star-burst">⭐</span>' : ''}
+                    ${i === 0 ? `<span class="theme-icon">${example.icon}</span>` : ''}
+                `;
+                
+                ladderRungs.appendChild(rungDiv);
+            }
+        }
+
+        // Show first example on load
+        showExample(0, document.querySelector('.example-btn'));
+    </script>
+</body>
+</html>

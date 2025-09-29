@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentence Swapper</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #FA8BFF 0%, #2BD2FF 52%, #2BFF88 90%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .title {
+            color: white;
+            font-size: 48px;
+            margin-bottom: 20px;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .title-icon {
+            animation: rotate 3s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .main-container {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .sentence-display {
+            background: white;
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            width: 100%;
+            text-align: center;
+        }
+
+        .current-sentence {
+            font-size: 36px;
+            line-height: 1.8;
+            margin-bottom: 20px;
+            min-height: 60px;
+            transition: opacity 0.3s ease;
+        }
+
+        .word-slot {
+            display: inline-block;
+            padding: 5px 15px;
+            margin: 0 5px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .word-slot:hover {
+            transform: scale(1.1);
+        }
+
+        .word-who { background: #FFE4E1; color: #FF6B6B; font-weight: bold; }
+        .word-action { background: #E1F5FE; color: #03A9F4; font-weight: bold; }
+        .word-how { background: #F3E5F5; color: #9C27B0; font-weight: bold; }
+        .word-what { background: #E8F5E9; color: #4CAF50; font-weight: bold; }
+        .word-where { background: #FFF3E0; color: #FF9800; font-weight: bold; }
+
+        .word-slot.selected {
+            animation: pulse 0.8s ease-in-out infinite;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+
+        .wheel-container {
+            background: white;
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .wheel-wrapper {
+            position: relative;
+            width: 300px;
+            height: 300px;
+        }
+
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: transform 3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .wheel-section {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: right bottom;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .wheel-section:nth-child(1) {
+            background: #FF6B6B;
+            transform: rotate(0deg);
+            clip-path: polygon(0 0, 100% 0, 100% 100%);
+        }
+
+        .wheel-section:nth-child(2) {
+            background: #03A9F4;
+            transform: rotate(72deg);
+            clip-path: polygon(0 0, 100% 0, 100% 100%);
+        }
+
+        .wheel-section:nth-child(3) {
+            background: #9C27B0;
+            transform: rotate(144deg);
+            clip-path: polygon(0 0, 100% 0, 100% 100%);
+        }
+
+        .wheel-section:nth-child(4) {
+            background: #4CAF50;
+            transform: rotate(216deg);
+            clip-path: polygon(0 0, 100% 0, 100% 100%);
+        }
+
+        .wheel-section:nth-child(5) {
+            background: #FF9800;
+            transform: rotate(288deg);
+            clip-path: polygon(0 0, 100% 0, 100% 100%);
+        }
+
+        .wheel-text {
+            position: absolute;
+            transform: rotate(-45deg) translate(-20px, -20px);
+        }
+
+        .wheel-pointer {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 40px solid #333;
+            z-index: 10;
+            filter: drop-shadow(0 3px 5px rgba(0,0,0,0.3));
+        }
+
+        .spin-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 24px;
+            font-family: 'Comic Sans MS', 'Arial', sans-serif;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: bold;
+        }
+
+        .spin-button:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+        }
+
+        .spin-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .word-options {
+            background: white;
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            width: 100%;
+            display: none;
+        }
+
+        .word-options.active {
+            display: block;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .options-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .word-option {
+            padding: 15px;
+            border-radius: 15px;
+            border: 3px solid #ddd;
+            cursor: pointer;
+            text-align: center;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .word-option:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .word-option.who-option:hover { background: #FFE4E1; border-color: #FF6B6B; }
+        .word-option.action-option:hover { background: #E1F5FE; border-color: #03A9F4; }
+        .word-option.how-option:hover { background: #F3E5F5; border-color: #9C27B0; }
+        .word-option.what-option:hover { background: #E8F5E9; border-color: #4CAF50; }
+        .word-option.where-option:hover { background: #FFF3E0; border-color: #FF9800; }
+
+        .history {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .history-title {
+            font-size: 20px;
+            color: #666;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .history-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: #f5f5f5;
+            border-radius: 10px;
+            font-size: 16px;
+            border-left: 5px solid #ddd;
+        }
+
+        .instructions {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            max-width: 600px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .instructions h3 {
+            color: #667eea;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .instructions p {
+            color: #666;
+            font-size: 18px;
+            line-height: 1.5;
+        }
+
+        .sentence-btn {
+            background: white;
+            border: 2px solid #ddd;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-family: 'Comic Sans MS', 'Arial', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .sentence-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        .sentence-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: #667eea;
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            .title { font-size: 32px; }
+            .current-sentence { font-size: 24px; }
+            .wheel-wrapper { width: 250px; height: 250px; }
+        }
+    </style>
+</head>
+<body>
+    <h1 class="title">
+        <span class="title-icon">🔄</span>
+        Sentence Swapper
+        <span class="title-icon">🔄</span>
+    </h1>
+
+    <div class="main-container">
+        <div style="background: white; border-radius: 20px; padding: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); width: 100%; margin-bottom: 20px;">
+            <div style="text-align: center; margin-bottom: 10px; color: #666; font-weight: bold;">
+                🎯 Choose a Starting Sentence:
+            </div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+                <button class="sentence-btn active" onclick="loadSentence(0, this)">🐕 Dog Story</button>
+                <button class="sentence-btn" onclick="loadSentence(1, this)">🦸 Superhero</button>
+                <button class="sentence-btn" onclick="loadSentence(2, this)">🍕 Pizza Time</button>
+                <button class="sentence-btn" onclick="loadSentence(3, this)">🦖 Dinosaur</button>
+                <button class="sentence-btn" onclick="loadSentence(4, this)">🎨 Art Class</button>
+                <button class="sentence-btn" onclick="loadSentence(5, this)">🚀 Space</button>
+                <button class="sentence-btn" onclick="loadSentence(6, this)">🏰 Princess</button>
+                <button class="sentence-btn" onclick="loadSentence(7, this)">⚽ Sports</button>
+            </div>
+        </div>
+
+        <div class="sentence-display">
+            <div class="current-sentence" id="sentence">
+                <span class="word-slot word-who" data-type="who" data-current="The happy dog">The happy dog</span>
+                <span class="word-slot word-action" data-type="action" data-current="runs">runs</span>
+                <span class="word-slot word-how" data-type="how" data-current="quickly">quickly</span>
+                <span class="word-slot word-where" data-type="where" data-current="in the park">in the park</span>
+                <span class="word-slot word-what" data-type="what" data-current="every morning">every morning</span>
+            </div>
+            <div style="color: #666; font-size: 16px; margin-top: 10px;">
+                Click any colored word to change it, or spin the wheel!
+            </div>
+        </div>
+
+        <div class="wheel-container">
+            <div class="wheel-wrapper">
+                <div class="wheel-pointer"></div>
+                <div class="wheel" id="wheel">
+                    <div class="wheel-section"><span class="wheel-text">WHO? 👤</span></div>
+                    <div class="wheel-section"><span class="wheel-text">ACTION 🎯</span></div>
+                    <div class="wheel-section"><span class="wheel-text">HOW? 🎨</span></div>
+                    <div class="wheel-section"><span class="wheel-text">WHAT? 📦</span></div>
+                    <div class="wheel-section"><span class="wheel-text">WHERE? 📍</span></div>
+                </div>
+            </div>
+            <button class="spin-button" onclick="spinWheel()">🎰 SPIN THE WHEEL! 🎰</button>
+        </div>
+
+        <div class="word-options" id="wordOptions">
+            <h3 class="options-title" id="optionsTitle">Choose a new word!</h3>
+            <div class="options-grid" id="optionsGrid">
+                <!-- Options will be populated here -->
+            </div>
+        </div>
+
+        <div class="history" id="history">
+            <div class="history-title">📝 Sentence History</div>
+            <div id="historyList">
+                <div class="history-item">1. The happy dog runs quickly in the park every morning</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="instructions">
+        <h3>🎮 How to Play!</h3>
+        <p>
+            <strong>Spin the wheel</strong> to randomly select a word type OR<br>
+            <strong>Click any colored word</strong> to change it directly!<br>
+            <strong>Pick a new word</strong> from the options that appear<br>
+            <strong>Watch</strong> how your sentence transforms! 🌟
+        </p>
+    </div>
+
+    <script>
+        const sentenceTemplates = [
+            { // Dog Story
+                who: 'The happy dog',
+                action: 'runs',
+                how: 'quickly',
+                where: 'in the park',
+                what: 'every morning'
+            },
+            { // Superhero
+                who: 'The brave superhero',
+                action: 'flies',
+                how: 'powerfully',
+                where: 'above the city',
+                what: 'to save people'
+            },
+            { // Pizza Time
+                who: 'My little sister',
+                action: 'eats',
+                how: 'messily',
+                where: 'at the table',
+                what: 'during dinner'
+            },
+            { // Dinosaur
+                who: 'The huge dinosaur',
+                action: 'stomps',
+                how: 'loudly',
+                where: 'through the jungle',
+                what: 'looking for food'
+            },
+            { // Art Class
+                who: 'Our art teacher',
+                action: 'paints',
+                how: 'beautifully',
+                where: 'in the classroom',
+                what: 'wonderful pictures'
+            },
+            { // Space
+                who: 'The astronaut',
+                action: 'floats',
+                how: 'gently',
+                where: 'in the spaceship',
+                what: 'near the stars'
+            },
+            { // Princess
+                who: 'The kind princess',
+                action: 'dances',
+                how: 'gracefully',
+                where: 'in the ballroom',
+                what: 'at the party'
+            },
+            { // Sports
+                who: 'Our team captain',
+                action: 'kicks',
+                how: 'strongly',
+                where: 'on the field',
+                what: 'the soccer ball'
+            }
+        ];
+
+        const wordOptions = {
+            who: [
+                'The happy dog',
+                'A silly cat',
+                'My best friend',
+                'The tiny mouse',
+                'Three bears',
+                'A brave knight',
+                'The old wizard',
+                'Two butterflies',
+                'The funny clown',
+                'A sleepy baby',
+                'The giant robot',
+                'Five monkeys',
+                'The clever fox',
+                'A dancing penguin',
+                'The teacher',
+                'My grandma',
+                'The pirate captain',
+                'A hungry dragon'
+            ],
+            action: [
+                'runs',
+                'jumps',
+                'dances',
+                'sleeps',
+                'eats',
+                'sings',
+                'plays',
+                'hides',
+                'swims',
+                'flies',
+                'reads',
+                'builds',
+                'draws',
+                'climbs',
+                'laughs',
+                'whispers',
+                'explores',
+                'discovers'
+            ],
+            how: [
+                'quickly',
+                'slowly',
+                'carefully',
+                'loudly',
+                'quietly',
+                'happily',
+                'gracefully',
+                'wildly',
+                'peacefully',
+                'excitedly',
+                'mysteriously',
+                'magically',
+                'bravely',
+                'silently',
+                'joyfully',
+                'crazily',
+                'perfectly',
+                'accidentally'
+            ],
+            what: [
+                'every morning',
+                'all day long',
+                'with friends',
+                'after school',
+                'before bedtime',
+                'during lunch',
+                'on weekends',
+                'with a smile',
+                'without stopping',
+                'very often',
+                'sometimes',
+                'at midnight',
+                'for hours',
+                'until sunset',
+                'since yesterday',
+                'next week',
+                'right now',
+                'forever'
+            ],
+            where: [
+                'in the park',
+                'at home',
+                'under the tree',
+                'on the moon',
+                'in the ocean',
+                'at school',
+                'in the garden',
+                'on the mountain',
+                'in the castle',
+                'at the zoo',
+                'in the clouds',
+                'near the lake',
+                'behind the door',
+                'inside the cave',
+                'on the roof',
+                'by the river',
+                'in the library',
+                'at the beach'
+            ]
+        };
+
+        let isSpinning = false;
+        let historyCount = 1;
+        let currentSelection = null;
+
+        function loadSentence(index, button) {
+            // Update active button
+            document.querySelectorAll('.sentence-btn').forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            
+            // Load the template
+            const template = sentenceTemplates[index];
+            
+            // Update sentence with animation
+            const sentenceDiv = document.getElementById('sentence');
+            sentenceDiv.style.opacity = '0';
+            
+            setTimeout(() => {
+                sentenceDiv.innerHTML = `
+                    <span class="word-slot word-who" data-type="who" data-current="${template.who}">${template.who}</span>
+                    <span class="word-slot word-action" data-type="action" data-current="${template.action}">${template.action}</span>
+                    <span class="word-slot word-how" data-type="how" data-current="${template.how}">${template.how}</span>
+                    <span class="word-slot word-where" data-type="where" data-current="${template.where}">${template.where}</span>
+                    <span class="word-slot word-what" data-type="what" data-current="${template.what}">${template.what}</span>
+                `;
+                
+                sentenceDiv.style.opacity = '1';
+                
+                // Re-attach click listeners
+                document.querySelectorAll('.word-slot').forEach(slot => {
+                    slot.addEventListener('click', function() {
+                        if (!isSpinning) {
+                            selectWordType(this.dataset.type);
+                        }
+                    });
+                });
+                
+                // Add to history
+                addToHistory();
+                
+                // Create sparkles
+                document.querySelectorAll('.word-slot').forEach(slot => {
+                    createSparkles(slot);
+                });
+            }, 300);
+        }
+
+        // Initialize click listeners on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.word-slot').forEach(slot => {
+                slot.addEventListener('click', function() {
+                    if (!isSpinning) {
+                        selectWordType(this.dataset.type);
+                    }
+                });
+            });
+        });
+
+        function spinWheel() {
+            if (isSpinning) return;
+            
+            isSpinning = true;
+            document.querySelector('.spin-button').disabled = true;
+            
+            // Random spin amount (3-5 full rotations plus random position)
+            const spins = 3 + Math.floor(Math.random() * 3);
+            const finalPosition = Math.floor(Math.random() * 5) * 72;
+            const totalRotation = spins * 360 + finalPosition;
+            
+            // Apply rotation
+            const wheel = document.getElementById('wheel');
+            wheel.style.transform = `rotate(${totalRotation}deg)`;
+            
+            // Determine which section was selected (opposite of pointer)
+            setTimeout(() => {
+                const selectedIndex = Math.floor(((360 - (finalPosition % 360)) / 72) % 5);
+                const types = ['who', 'action', 'how', 'what', 'where'];
+                selectWordType(types[selectedIndex]);
+                
+                isSpinning = false;
+                document.querySelector('.spin-button').disabled = false;
+            }, 3000);
+        }
+
+        function selectWordType(type) {
+            // Remove previous selection
+            document.querySelectorAll('.word-slot').forEach(slot => {
+                slot.classList.remove('selected');
+            });
+            
+            // Highlight selected word
+            const selectedSlot = document.querySelector(`.word-slot[data-type="${type}"]`);
+            selectedSlot.classList.add('selected');
+            
+            currentSelection = type;
+            showOptions(type);
+        }
+
+        function showOptions(type) {
+            const optionsDiv = document.getElementById('wordOptions');
+            const optionsGrid = document.getElementById('optionsGrid');
+            const optionsTitle = document.getElementById('optionsTitle');
+            
+            // Update title
+            const titles = {
+                who: '👤 Choose WHO does the action:',
+                action: '🎯 Choose the ACTION:',
+                how: '🎨 Choose HOW they do it:',
+                what: '📦 Choose WHEN/WHAT:',
+                where: '📍 Choose WHERE it happens:'
+            };
+            optionsTitle.textContent = titles[type];
+            
+            // Clear and populate options
+            optionsGrid.innerHTML = '';
+            wordOptions[type].forEach(option => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = `word-option ${type}-option`;
+                optionDiv.textContent = option;
+                optionDiv.onclick = () => swapWord(option);
+                optionsGrid.appendChild(optionDiv);
+            });
+            
+            // Show options
+            optionsDiv.classList.add('active');
+        }
+
+        function swapWord(newWord) {
+            if (!currentSelection) return;
+            
+            // Find and update the word
+            const slot = document.querySelector(`.word-slot[data-type="${currentSelection}"]`);
+            const oldWord = slot.textContent;
+            
+            // Animate the change
+            slot.style.transform = 'scale(0)';
+            setTimeout(() => {
+                slot.textContent = newWord;
+                slot.dataset.current = newWord;
+                slot.style.transform = 'scale(1)';
+                
+                // Create sparkle effect
+                createSparkles(slot);
+            }, 300);
+            
+            // Update history
+            setTimeout(() => {
+                addToHistory();
+            }, 600);
+            
+            // Hide options and reset selection
+            document.getElementById('wordOptions').classList.remove('active');
+            document.querySelectorAll('.word-slot').forEach(slot => {
+                slot.classList.remove('selected');
+            });
+            currentSelection = null;
+        }
+
+        function addToHistory() {
+            historyCount++;
+            const sentence = Array.from(document.querySelectorAll('.word-slot'))
+                .map(slot => slot.textContent)
+                .join(' ');
+            
+            const historyList = document.getElementById('historyList');
+            const newItem = document.createElement('div');
+            newItem.className = 'history-item';
+            newItem.textContent = `${historyCount}. ${sentence}`;
+            newItem.style.borderLeftColor = getRandomColor();
+            
+            // Add to top of history
+            historyList.insertBefore(newItem, historyList.firstChild);
+            
+            // Keep only last 5 items
+            while (historyList.children.length > 5) {
+                historyList.removeChild(historyList.lastChild);
+            }
+        }
+
+        function createSparkles(element) {
+            for (let i = 0; i < 5; i++) {
+                const sparkle = document.createElement('span');
+                sparkle.style.position = 'absolute';
+                sparkle.style.left = '50%';
+                sparkle.style.top = '50%';
+                sparkle.innerHTML = '✨';
+                sparkle.style.fontSize = '20px';
+                sparkle.style.animation = `sparkle-${i} 1s ease-out`;
+                sparkle.style.pointerEvents = 'none';
+                element.appendChild(sparkle);
+                
+                // Add unique animation
+                const style = document.createElement('style');
+                style.innerHTML = `
+                    @keyframes sparkle-${i} {
+                        to {
+                            transform: translate(${Math.random() * 100 - 50}px, ${Math.random() * 100 - 50}px) scale(0);
+                            opacity: 0;
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+                
+                setTimeout(() => {
+                    sparkle.remove();
+                    style.remove();
+                }, 1000);
+            }
+        }
+
+        function getRandomColor() {
+            const colors = ['#FF6B6B', '#03A9F4', '#9C27B0', '#4CAF50', '#FF9800'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+    </script>
+</body>
+</html>

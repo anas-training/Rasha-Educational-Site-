@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentence Journey Map - Grade 2</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 30px;
+            padding: 30px;
+            max-width: 1200px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #5f27cd;
+            font-size: 38px;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Picture Selection */
+        .picture-selector {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .picture-display {
+            font-size: 80px;
+            margin-bottom: 10px;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .picture-title {
+            font-size: 20px;
+            color: #2c3e50;
+            font-weight: bold;
+        }
+
+        /* Journey Board */
+        .journey-board {
+            background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%);
+            border-radius: 25px;
+            padding: 30px;
+            margin-bottom: 20px;
+            position: relative;
+            min-height: 400px;
+            box-shadow: inset 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Path Stops */
+        .path {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .path-line {
+            position: absolute;
+            top: 50%;
+            left: 5%;
+            right: 5%;
+            height: 8px;
+            background: repeating-linear-gradient(
+                90deg,
+                #8B4513,
+                #8B4513 10px,
+                #D2691E 10px,
+                #D2691E 20px
+            );
+            border-radius: 4px;
+            z-index: 1;
+        }
+
+        .stop {
+            position: relative;
+            z-index: 10;
+            width: 120px;
+            height: 120px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 5px solid #fff;
+        }
+
+        .stop:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .stop.start {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .stop.who {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .stop.doing {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .stop.where {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+        }
+
+        .stop.when {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+        }
+
+        .stop.end {
+            background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%);
+            color: white;
+        }
+
+        .stop.completed {
+            animation: celebrate 1s ease-in-out;
+            border-color: #ffd700;
+            box-shadow: 0 0 20px #ffd700;
+        }
+
+        @keyframes celebrate {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.2) rotate(10deg); }
+        }
+
+        .stop-icon {
+            font-size: 30px;
+            margin-bottom: 5px;
+        }
+
+        .stop-label {
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .stop-content {
+            font-size: 12px;
+            margin-top: 5px;
+            text-align: center;
+            max-width: 100px;
+            word-wrap: break-word;
+        }
+
+        /* Character */
+        .character {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            z-index: 20;
+            transition: all 0.5s ease-in-out;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .character.hopping {
+            animation: hop 0.5s ease-in-out;
+        }
+
+        @keyframes hop {
+            0%, 100% { transform: translateY(-50%); }
+            50% { transform: translateY(-100px); }
+        }
+
+        /* Word Choices */
+        .word-choices {
+            background: #f8f9fa;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .choice-title {
+            font-size: 22px;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .choices-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .choice-btn {
+            padding: 15px;
+            border: none;
+            border-radius: 15px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .choice-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .choice-btn:disabled {
+            background: #e0e0e0 !important;
+            color: #999;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .choice-btn.who {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .choice-btn.doing {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .choice-btn.where {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+
+        .choice-btn.when {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+
+        /* Sentence Display */
+        .sentence-display {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            text-align: center;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sentence-text {
+            font-size: 26px;
+            color: white;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .control-btn.hop {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .control-btn.reset {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+        }
+
+        .control-btn.read {
+            background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%);
+        }
+
+        .control-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .control-btn:disabled {
+            background: #bdbdbd;
+            cursor: not-allowed;
+        }
+
+        /* Success Celebration */
+        .celebration {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 100px;
+            display: none;
+            z-index: 1000;
+            animation: celebrationAnim 1s;
+        }
+
+        @keyframes celebrationAnim {
+            0% { transform: translate(-50%, -50%) scale(0) rotate(0); }
+            50% { transform: translate(-50%, -50%) scale(1.5) rotate(180deg); }
+            100% { transform: translate(-50%, -50%) scale(0) rotate(360deg); }
+        }
+
+        /* Progress Stars */
+        .progress-stars {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 30px;
+        }
+
+        .star {
+            display: inline-block;
+            color: #e0e0e0;
+            margin: 0 5px;
+            transition: all 0.3s;
+        }
+
+        .star.earned {
+            color: #ffd700;
+            animation: starPop 0.5s;
+        }
+
+        @keyframes starPop {
+            0% { transform: scale(0) rotate(0); }
+            50% { transform: scale(1.3) rotate(180deg); }
+            100% { transform: scale(1) rotate(360deg); }
+        }
+
+        /* Instructions */
+        .instructions {
+            background: #e3f2fd;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .instructions-text {
+            color: #1976d2;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .path {
+                flex-direction: column;
+                gap: 30px;
+            }
+            
+            .path-line {
+                width: 8px;
+                height: 90%;
+                left: 50%;
+                top: 5%;
+                transform: translateX(-50%);
+                background: repeating-linear-gradient(
+                    180deg,
+                    #8B4513,
+                    #8B4513 10px,
+                    #D2691E 10px,
+                    #D2691E 20px
+                );
+            }
+            
+            .stop {
+                width: 100px;
+                height: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🗺️ Sentence Journey Map 🗺️</h1>
+
+        <!-- Instructions -->
+        <div class="instructions">
+            <div class="instructions-text">
+                🎯 Hop along the path! Each stop adds a word to your sentence!
+            </div>
+        </div>
+
+        <!-- Progress Stars -->
+        <div class="progress-stars">
+            <span class="star" id="star1">⭐</span>
+            <span class="star" id="star2">⭐</span>
+            <span class="star" id="star3">⭐</span>
+            <span class="star" id="star4">⭐</span>
+            <span class="star" id="star5">⭐</span>
+        </div>
+
+        <!-- Picture Selector -->
+        <div class="picture-selector">
+            <div class="picture-display" id="pictureDisplay">🐶</div>
+            <div class="picture-title" id="pictureTitle">A playful dog</div>
+        </div>
+
+        <!-- Journey Board -->
+        <div class="journey-board">
+            <div class="path">
+                <div class="path-line"></div>
+                
+                <!-- Character -->
+                <div class="character" id="character">🧒</div>
+                
+                <!-- Stops -->
+                <div class="stop start" onclick="moveToStop(0)">
+                    <div class="stop-icon">🏁</div>
+                    <div class="stop-label">START</div>
+                    <div class="stop-content"></div>
+                </div>
+                
+                <div class="stop who" onclick="moveToStop(1)">
+                    <div class="stop-icon">👤</div>
+                    <div class="stop-label">WHO?</div>
+                    <div class="stop-content" id="who-content"></div>
+                </div>
+                
+                <div class="stop doing" onclick="moveToStop(2)">
+                    <div class="stop-icon">🎬</div>
+                    <div class="stop-label">DOING?</div>
+                    <div class="stop-content" id="doing-content"></div>
+                </div>
+                
+                <div class="stop where" onclick="moveToStop(3)">
+                    <div class="stop-icon">📍</div>
+                    <div class="stop-label">WHERE?</div>
+                    <div class="stop-content" id="where-content"></div>
+                </div>
+                
+                <div class="stop when" onclick="moveToStop(4)">
+                    <div class="stop-icon">⏰</div>
+                    <div class="stop-label">WHEN?</div>
+                    <div class="stop-content" id="when-content"></div>
+                </div>
+                
+                <div class="stop end" onclick="moveToStop(5)">
+                    <div class="stop-icon">🏆</div>
+                    <div class="stop-label">END</div>
+                    <div class="stop-content"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sentence Display -->
+        <div class="sentence-display">
+            <div class="sentence-text" id="sentenceText">
+                Start your journey to build a sentence!
+            </div>
+        </div>
+
+        <!-- Word Choices -->
+        <div class="word-choices" id="wordChoices">
+            <div class="choice-title" id="choiceTitle">Click START to begin your journey!</div>
+            <div class="choices-grid" id="choicesGrid">
+                <!-- Choices will appear here -->
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <button class="control-btn hop" onclick="hopNext()" id="hopBtn">🦘 Hop Forward!</button>
+            <button class="control-btn reset" onclick="resetJourney()">🔄 Start Over</button>
+            <button class="control-btn read" onclick="readSentence()">🔊 Read Sentence</button>
+        </div>
+    </div>
+
+    <!-- Celebration -->
+    <div class="celebration" id="celebration">🎉</div>
+
+    <script>
+        // Picture scenarios
+        const scenarios = [
+            {
+                emoji: '🐶',
+                title: 'A playful dog',
+                who: ['The dog', 'A puppy', 'My dog', 'The brown dog'],
+                doing: ['runs', 'jumps', 'plays', 'barks'],
+                where: ['in the park', 'outside', 'in the yard', 'on the grass'],
+                when: ['every day', 'today', 'now', 'happily']
+            },
+            {
+                emoji: '🐱',
+                title: 'A sleepy cat',
+                who: ['The cat', 'A kitten', 'My cat', 'The gray cat'],
+                doing: ['sleeps', 'purrs', 'sits', 'rests'],
+                where: ['on the mat', 'inside', 'on the bed', 'by the window'],
+                when: ['quietly', 'all day', 'peacefully', 'now']
+            },
+            {
+                emoji: '👧',
+                title: 'A happy girl',
+                who: ['The girl', 'She', 'Maria', 'My friend'],
+                doing: ['reads', 'draws', 'sings', 'writes'],
+                where: ['at school', 'in class', 'at home', 'in the library'],
+                when: ['carefully', 'every morning', 'quietly', 'today']
+            },
+            {
+                emoji: '🐦',
+                title: 'A singing bird',
+                who: ['The bird', 'A robin', 'It', 'The blue bird'],
+                doing: ['flies', 'sings', 'chirps', 'sits'],
+                where: ['in the tree', 'up high', 'in the sky', 'on a branch'],
+                when: ['early', 'loudly', 'beautifully', 'always']
+            }
+        ];
+
+        // Game state
+        let currentScenario = 0;
+        let currentStop = 0;
+        let sentence = {
+            who: '',
+            doing: '',
+            where: '',
+            when: ''
+        };
+        let journeyComplete = false;
+
+        // Initialize
+        function init() {
+            updatePicture();
+            positionCharacter(0);
+        }
+
+        // Update picture
+        function updatePicture() {
+            const scenario = scenarios[currentScenario];
+            document.getElementById('pictureDisplay').textContent = scenario.emoji;
+            document.getElementById('pictureTitle').textContent = scenario.title;
+        }
+
+        // Position character at stop
+        function positionCharacter(stopIndex) {
+            const stops = document.querySelectorAll('.stop');
+            const character = document.getElementById('character');
+            const stop = stops[stopIndex];
+            
+            // Calculate position
+            const stopRect = stop.getBoundingClientRect();
+            const boardRect = document.querySelector('.journey-board').getBoundingClientRect();
+            const leftPosition = stopRect.left - boardRect.left + (stopRect.width / 2) - 30;
+            
+            character.style.left = leftPosition + 'px';
+        }
+
+        // Move to specific stop
+        function moveToStop(stopIndex) {
+            if (stopIndex <= currentStop + 1 && stopIndex >= 0) {
+                currentStop = stopIndex;
+                animateHop(stopIndex);
+                showChoices(stopIndex);
+                updateStars();
+            }
+        }
+
+        // Hop to next stop
+        function hopNext() {
+            if (currentStop < 5) {
+                currentStop++;
+                animateHop(currentStop);
+                showChoices(currentStop);
+                updateStars();
+            }
+        }
+
+        // Animate character hop
+        function animateHop(stopIndex) {
+            const character = document.getElementById('character');
+            character.classList.add('hopping');
+            
+            setTimeout(() => {
+                positionCharacter(stopIndex);
+                character.classList.remove('hopping');
+                
+                // Mark stop as completed
+                if (stopIndex > 0 && stopIndex < 5) {
+                    const stops = document.querySelectorAll('.stop');
+                    stops[stopIndex].classList.add('completed');
+                }
+                
+                // Check if journey complete
+                if (stopIndex === 5) {
+                    completeJourney();
+                }
+            }, 250);
+        }
+
+        // Show word choices for current stop
+        function showChoices(stopIndex) {
+            const choiceTitle = document.getElementById('choiceTitle');
+            const choicesGrid = document.getElementById('choicesGrid');
+            const scenario = scenarios[currentScenario];
+            
+            choicesGrid.innerHTML = '';
+            
+            switch(stopIndex) {
+                case 0:
+                    choiceTitle.textContent = '🏁 Ready to start your sentence journey?';
+                    document.getElementById('hopBtn').disabled = false;
+                    break;
+                    
+                case 1: // WHO
+                    choiceTitle.textContent = '👤 WHO is in your sentence?';
+                    scenario.who.forEach(word => {
+                        const btn = createChoiceButton(word, 'who');
+                        choicesGrid.appendChild(btn);
+                    });
+                    break;
+                    
+                case 2: // DOING
+                    choiceTitle.textContent = '🎬 What are they DOING?';
+                    scenario.doing.forEach(word => {
+                        const btn = createChoiceButton(word, 'doing');
+                        choicesGrid.appendChild(btn);
+                    });
+                    break;
+                    
+                case 3: // WHERE
+                    choiceTitle.textContent = '📍 WHERE are they?';
+                    scenario.where.forEach(word => {
+                        const btn = createChoiceButton(word, 'where');
+                        choicesGrid.appendChild(btn);
+                    });
+                    break;
+                    
+                case 4: // WHEN
+                    choiceTitle.textContent = '⏰ WHEN does this happen?';
+                    scenario.when.forEach(word => {
+                        const btn = createChoiceButton(word, 'when');
+                        choicesGrid.appendChild(btn);
+                    });
+                    break;
+                    
+                case 5: // END
+                    choiceTitle.textContent = '🏆 Journey Complete! You built a sentence!';
+                    break;
+            }
+        }
+
+        // Create choice button
+        function createChoiceButton(word, type) {
+            const btn = document.createElement('button');
+            btn.className = `choice-btn ${type}`;
+            btn.textContent = word;
+            btn.onclick = () => selectWord(word, type);
+            
+            // Disable if already selected
+            if (sentence[type] === word) {
+                btn.disabled = true;
+            }
+            
+            return btn;
+        }
+
+        // Select word for sentence part
+        function selectWord(word, type) {
+            sentence[type] = word;
+            
+            // Update stop content
+            document.getElementById(`${type}-content`).textContent = word;
+            
+            // Update sentence display
+            updateSentenceDisplay();
+            
+            // Disable all buttons of this type
+            const buttons = document.querySelectorAll(`.choice-btn.${type}`);
+            buttons.forEach(btn => {
+                if (btn.textContent === word) {
+                    btn.disabled = true;
+                }
+            });
+            
+            // Enable hop button
+            document.getElementById('hopBtn').disabled = false;
+            
+            // Auto-hop after selection
+            setTimeout(() => {
+                if (currentStop < 5) {
+                    hopNext();
+                }
+            }, 500);
+        }
+
+        // Update sentence display
+        function updateSentenceDisplay() {
+            const display = document.getElementById('sentenceText');
+            let text = '';
+            
+            if (sentence.who) text += sentence.who + ' ';
+            if (sentence.doing) text += sentence.doing + ' ';
+            if (sentence.where) text += sentence.where + ' ';
+            if (sentence.when) text += sentence.when;
+            
+            if (text) {
+                display.textContent = text.trim() + '.';
+            } else {
+                display.textContent = 'Start your journey to build a sentence!';
+            }
+        }
+
+        // Update progress stars
+        function updateStars() {
+            for (let i = 1; i <= 5; i++) {
+                const star = document.getElementById(`star${i}`);
+                if (i <= currentStop) {
+                    star.classList.add('earned');
+                } else {
+                    star.classList.remove('earned');
+                }
+            }
+        }
+
+        // Complete journey
+        function completeJourney() {
+            journeyComplete = true;
+            document.getElementById('hopBtn').disabled = true;
+            
+            // Show celebration
+            const celebration = document.getElementById('celebration');
+            celebration.style.display = 'block';
+            celebration.textContent = '🎉';
+            
+            setTimeout(() => {
+                celebration.style.display = 'none';
+            }, 1000);
+            
+            // Confetti effect
+            createConfetti();
+        }
+
+        // Create confetti
+        function createConfetti() {
+            const colors = ['🎈', '⭐', '✨', '🎊', '🎉'];
+            
+            for (let i = 0; i < 10; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.style.position = 'fixed';
+                    confetti.style.fontSize = '30px';
+                    confetti.style.left = Math.random() * window.innerWidth + 'px';
+                    confetti.style.top = '-50px';
+                    confetti.style.zIndex = '1000';
+                    confetti.textContent = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animation = 'fall 3s linear';
+                    document.body.appendChild(confetti);
+                    
+                    setTimeout(() => confetti.remove(), 3000);
+                }, i * 200);
+            }
+        }
+
+        // Add falling animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fall {
+                to {
+                    transform: translateY(${window.innerHeight + 100}px) rotate(360deg);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Reset journey
+        function resetJourney() {
+            currentStop = 0;
+            sentence = { who: '', doing: '', where: '', when: '' };
+            journeyComplete = false;
+            
+            // Clear stop contents
+            ['who', 'doing', 'where', 'when'].forEach(type => {
+                const content = document.getElementById(`${type}-content`);
+                if (content) content.textContent = '';
+            });
+            
+            // Remove completed class
+            document.querySelectorAll('.stop').forEach(stop => {
+                stop.classList.remove('completed');
+            });
+            
+            // Reset position
+            positionCharacter(0);
+            
+            // Reset displays
+            updateSentenceDisplay();
+            showChoices(0);
+            updateStars();
+            
+            // Change scenario
+            currentScenario = (currentScenario + 1) % scenarios.length;
+            updatePicture();
+            
+            document.getElementById('hopBtn').disabled = false;
+        }
+
+        // Read sentence aloud
+        function readSentence() {
+            const text = document.getElementById('sentenceText').textContent;
+            
+            if (text !== 'Start your journey to build a sentence!' && 'speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 0.8;
+                utterance.pitch = 1.2;
+                speechSynthesis.speak(utterance);
+            }
+        }
+
+        // Initialize on load
+        window.addEventListener('load', init);
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            positionCharacter(currentStop);
+        });
+    </script>
+</body>
+</html>

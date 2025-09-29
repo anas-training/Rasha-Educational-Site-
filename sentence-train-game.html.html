@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentence Train - Grade 2</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Arial', sans-serif;
+            background: linear-gradient(to bottom, #87CEEB 0%, #98FB98 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 30px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 42px;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Picture Display */
+        .picture-display {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .picture {
+            font-size: 120px;
+            margin-bottom: 15px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .picture-label {
+            font-size: 24px;
+            color: #2c3e50;
+            font-weight: bold;
+        }
+
+        /* Train Track */
+        .train-track {
+            background: linear-gradient(to bottom, transparent 45%, #8B4513 45%, #8B4513 55%, transparent 55%);
+            height: 20px;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .track-ties {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: repeating-linear-gradient(90deg, #654321 0px, #654321 5px, transparent 5px, transparent 20px);
+        }
+
+        /* Train Container */
+        .train-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            min-height: 200px;
+            position: relative;
+            overflow-x: auto;
+        }
+
+        .train {
+            display: flex;
+            align-items: center;
+            gap: 0;
+        }
+
+        /* Train Engine */
+        .engine {
+            width: 150px;
+            height: 120px;
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            border-radius: 20px 10px 10px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-right: -5px;
+        }
+
+        .engine::before {
+            content: '🚂';
+            font-size: 40px;
+            position: absolute;
+            top: 10px;
+        }
+
+        .engine-label {
+            color: white;
+            font-weight: bold;
+            margin-top: 30px;
+            font-size: 18px;
+        }
+
+        /* Train Cars */
+        .train-car {
+            width: 180px;
+            height: 120px;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin: 0 -5px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .train-car:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .train-car.who {
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+        }
+
+        .train-car.doing {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        }
+
+        .train-car.where {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+        }
+
+        .train-car.when {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        }
+
+        .train-car.empty {
+            background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+            border: 3px dashed #ecf0f1;
+        }
+
+        .car-label {
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .car-content {
+            background: white;
+            padding: 8px 15px;
+            border-radius: 10px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+            min-width: 100px;
+            text-align: center;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .car-content.empty {
+            background: rgba(255, 255, 255, 0.5);
+            color: #95a5a6;
+            border: 2px dashed #bdc3c7;
+        }
+
+        /* Wheels */
+        .wheels {
+            position: absolute;
+            bottom: -15px;
+            left: 10%;
+            right: 10%;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .wheel {
+            width: 25px;
+            height: 25px;
+            background: #2c3e50;
+            border-radius: 50%;
+            border: 3px solid #34495e;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            animation: rotate 2s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Word Station */
+        .word-station {
+            background: linear-gradient(135deg, #fff5e6 0%, #ffe0b2 100%);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .station-title {
+            font-size: 24px;
+            color: #e65100;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .word-categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .word-category {
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .category-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            padding: 5px 10px;
+            border-radius: 10px;
+            color: white;
+            text-align: center;
+        }
+
+        .category-who .category-title {
+            background: #9b59b6;
+        }
+
+        .category-doing .category-title {
+            background: #3498db;
+        }
+
+        .category-where .category-title {
+            background: #2ecc71;
+        }
+
+        .category-when .category-title {
+            background: #f39c12;
+        }
+
+        .words {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .word {
+            background: white;
+            border: 2px solid #e0e0e0;
+            padding: 8px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .word:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .word.who:hover {
+            background: #9b59b6;
+            color: white;
+        }
+
+        .word.doing:hover {
+            background: #3498db;
+            color: white;
+        }
+
+        .word.where:hover {
+            background: #2ecc71;
+            color: white;
+        }
+
+        .word.when:hover {
+            background: #f39c12;
+            color: white;
+        }
+
+        .word.used {
+            background: #ecf0f1;
+            color: #95a5a6;
+            cursor: not-allowed;
+            transform: scale(0.9);
+        }
+
+        /* Complete Sentence Display */
+        .sentence-display {
+            background: linear-gradient(135deg, #e1bee7 0%, #ce93d8 100%);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            text-align: center;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .complete-sentence {
+            font-size: 28px;
+            color: white;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-read {
+            background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%);
+        }
+
+        .btn-clear {
+            background: linear-gradient(135deg, #ff7043 0%, #ff5722 100%);
+        }
+
+        .btn-check {
+            background: linear-gradient(135deg, #66bb6a 0%, #4caf50 100%);
+        }
+
+        .btn-add {
+            background: linear-gradient(135deg, #ab47bc 0%, #9c27b0 100%);
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:disabled {
+            background: #bdbdbd;
+            cursor: not-allowed;
+        }
+
+        /* Success Animation */
+        .success-animation {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 100px;
+            display: none;
+            animation: celebrate 1s;
+        }
+
+        @keyframes celebrate {
+            0% { transform: scale(1) rotate(0deg); }
+            25% { transform: scale(1.2) rotate(-5deg); }
+            50% { transform: scale(1.3) rotate(5deg); }
+            75% { transform: scale(1.2) rotate(-5deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        /* Visual Feedback */
+        .visual-feedback {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);
+            color: white;
+            padding: 20px 40px;
+            border-radius: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            display: none;
+            animation: slideIn 0.5s;
+            z-index: 1000;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translate(-50%, -150%);
+                opacity: 0;
+            }
+            to {
+                transform: translate(-50%, -50%);
+                opacity: 1;
+            }
+        }
+
+        /* Train Animation */
+        .train-moving {
+            animation: chugChug 0.5s ease-in-out;
+        }
+
+        @keyframes chugChug {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* Sound Button */
+        .sound-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ffd54f 0%, #ffb300 100%);
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s;
+        }
+
+        .sound-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .train-car, .engine {
+                width: 120px;
+                height: 100px;
+            }
+            
+            .car-content {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚂 Sentence Train Builder 🚂</h1>
+        
+        <!-- Info message -->
+        <div style="text-align: center; padding: 10px; background: #e3f2fd; border-radius: 10px; margin-bottom: 20px; color: #1976d2;">
+            💡 <strong>Tip:</strong> This game works great with or without sound! Click the 🔊 button to toggle sound on/off.
+        </div>
+
+        <!-- Sound Button -->
+        <button class="sound-btn" onclick="playSound()" title="Toggle Sound">🔇</button>
+
+        <!-- Picture Display -->
+        <div class="picture-display" style="position: relative;">
+            <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+                <button style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 20px; cursor: pointer; margin-right: 20px; transition: all 0.3s;" 
+                        onmouseover="this.style.transform='scale(1.1)'" 
+                        onmouseout="this.style.transform='scale(1)'"
+                        onclick="changePicture('prev')" 
+                        title="Previous picture">←</button>
+                <div class="picture" id="storyPicture">🐶</div>
+                <button style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 20px; cursor: pointer; margin-left: 20px; transition: all 0.3s;" 
+                        onmouseover="this.style.transform='scale(1.1)'" 
+                        onmouseout="this.style.transform='scale(1)'"
+                        onclick="changePicture('next')" 
+                        title="Next picture">→</button>
+            </div>
+            <div class="picture-label" id="pictureLabel">Look at the picture and build a sentence!</div>
+            <div style="color: #e65100; font-size: 16px; margin-top: 10px;">
+                Picture <span id="pictureNumber">1</span> of 6 - Click arrows to change
+            </div>
+        </div>
+
+        <!-- Complete Sentence Display -->
+        <div class="sentence-display">
+            <div class="complete-sentence" id="completeSentence">
+                Click words to build your sentence train!
+            </div>
+        </div>
+
+        <!-- Train Track -->
+        <div class="train-track">
+            <div class="track-ties"></div>
+        </div>
+
+        <!-- Train Container -->
+        <div class="train-container">
+            <div class="train" id="train">
+                <!-- Engine -->
+                <div class="engine">
+                    <div class="engine-label">START</div>
+                    <div class="wheels">
+                        <div class="wheel"></div>
+                        <div class="wheel"></div>
+                    </div>
+                </div>
+
+                <!-- WHO Car -->
+                <div class="train-car who" onclick="selectCar('who')">
+                    <div class="car-label">WHO?</div>
+                    <div class="car-content empty" id="who-content">___</div>
+                    <div class="wheels">
+                        <div class="wheel"></div>
+                        <div class="wheel"></div>
+                    </div>
+                </div>
+
+                <!-- DOING Car -->
+                <div class="train-car doing" onclick="selectCar('doing')">
+                    <div class="car-label">DOING?</div>
+                    <div class="car-content empty" id="doing-content">___</div>
+                    <div class="wheels">
+                        <div class="wheel"></div>
+                        <div class="wheel"></div>
+                    </div>
+                </div>
+
+                <!-- WHERE Car -->
+                <div class="train-car where empty" onclick="selectCar('where')">
+                    <div class="car-label">WHERE?</div>
+                    <div class="car-content empty" id="where-content">___</div>
+                    <div class="wheels">
+                        <div class="wheel"></div>
+                        <div class="wheel"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Word Station -->
+        <div class="word-station">
+            <div class="station-title">🚉 Word Station - Pick Your Words! 🚉</div>
+            <div class="word-categories">
+                <!-- WHO Category -->
+                <div class="word-category category-who">
+                    <div class="category-title">WHO? (Person/Animal)</div>
+                    <div class="words">
+                        <!-- Words will be added dynamically based on picture -->
+                    </div>
+                </div>
+
+                <!-- DOING Category -->
+                <div class="word-category category-doing">
+                    <div class="category-title">DOING? (Action)</div>
+                    <div class="words">
+                        <!-- Words will be added dynamically based on picture -->
+                    </div>
+                </div>
+
+                <!-- WHERE Category -->
+                <div class="word-category category-where">
+                    <div class="category-title">WHERE? (Place)</div>
+                    <div class="words">
+                        <!-- Words will be added dynamically based on picture -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <button class="btn btn-read" onclick="readSentence()">🔊 Read My Sentence</button>
+            <button class="btn btn-clear" onclick="clearTrain()">🔄 Clear Train</button>
+            <button class="btn btn-check" onclick="checkSentence()">✅ Check Sentence</button>
+            <button class="btn btn-add" onclick="addTrainCar()">➕ Add More Cars</button>
+        </div>
+    </div>
+
+    <!-- Success Animation -->
+    <div class="success-animation" id="successAnimation">🎉</div>
+
+    <script>
+        // Picture scenarios with matching words
+        const scenarios = [
+            { 
+                emoji: '🐶', 
+                description: 'A happy dog',
+                who: ['The dog', 'A dog', 'The puppy', 'A puppy', 'The brown dog', 'My dog'],
+                doing: ['is running', 'is jumping', 'is playing', 'is barking', 'is wagging', 'is sitting'],
+                where: ['in the park', 'in the yard', 'on the grass', 'outside', 'by the tree', 'at home'],
+                when: ['today', 'now', 'this morning', 'every day', 'always', 'sometimes']
+            },
+            { 
+                emoji: '🐱', 
+                description: 'A sleepy cat',
+                who: ['The cat', 'A cat', 'The kitten', 'A kitten', 'The orange cat', 'My cat'],
+                doing: ['is sleeping', 'is purring', 'is stretching', 'is sitting', 'is playing', 'is eating'],
+                where: ['on the mat', 'on the bed', 'in the sun', 'on the sofa', 'by the window', 'inside'],
+                when: ['right now', 'all day', 'often', 'sometimes', 'today', 'now']
+            },
+            { 
+                emoji: '👦', 
+                description: 'A young boy',
+                who: ['The boy', 'A boy', 'The child', 'The student', 'The kid', 'He'],
+                doing: ['is reading', 'is playing', 'is running', 'is jumping', 'is laughing', 'is writing'],
+                where: ['at school', 'at home', 'in the classroom', 'outside', 'in the playground', 'at the park'],
+                when: ['today', 'after school', 'now', 'this morning', 'every day', 'sometimes']
+            },
+            { 
+                emoji: '👧', 
+                description: 'A young girl',
+                who: ['The girl', 'A girl', 'The child', 'The student', 'She', 'My friend'],
+                doing: ['is drawing', 'is singing', 'is dancing', 'is reading', 'is smiling', 'is playing'],
+                where: ['at school', 'at home', 'in the garden', 'in her room', 'at the library', 'outside'],
+                when: ['right now', 'today', 'happily', 'quietly', 'always', 'sometimes']
+            },
+            { 
+                emoji: '🐦', 
+                description: 'A small bird',
+                who: ['The bird', 'A bird', 'The blue bird', 'A little bird', 'The robin', 'It'],
+                doing: ['is flying', 'is singing', 'is chirping', 'is sitting', 'is eating', 'is hopping'],
+                where: ['in the sky', 'on a branch', 'in the tree', 'on the fence', 'in the nest', 'outside'],
+                when: ['now', 'this morning', 'early', 'today', 'happily', 'quickly']
+            },
+            { 
+                emoji: '🐠', 
+                description: 'A colorful fish',
+                who: ['The fish', 'A fish', 'The goldfish', 'A little fish', 'The orange fish', 'It'],
+                doing: ['is swimming', 'is floating', 'is eating', 'is playing', 'is hiding', 'is moving'],
+                where: ['in the water', 'in the tank', 'in the bowl', 'in the aquarium', 'under water', 'near the rocks'],
+                when: ['slowly', 'quickly', 'now', 'all day', 'quietly', 'happily']
+            }
+        ];
+
+        // Train state
+        let trainData = {
+            who: '',
+            doing: '',
+            where: '',
+            when: '',
+            describing: ''
+        };
+
+        let selectedCar = null;
+        let currentScenario = 0;
+        let additionalCars = 0;
+
+        // Initialize
+        function init() {
+            updatePicture(); // This will now also update word choices
+            updateSentenceDisplay();
+            
+            // Start with sound off to avoid issues
+            const soundBtn = document.querySelector('.sound-btn');
+            soundBtn.textContent = '🔇';
+            soundBtn.title = 'Click to turn sound on';
+        }
+
+        // Update picture and words
+        function updatePicture() {
+            const picture = document.getElementById('storyPicture');
+            const label = document.getElementById('pictureLabel');
+            const numberSpan = document.getElementById('pictureNumber');
+            
+            picture.textContent = scenarios[currentScenario].emoji;
+            label.textContent = `Build a sentence about: ${scenarios[currentScenario].description}`;
+            numberSpan.textContent = currentScenario + 1;
+            
+            updateWordChoices();
+        }
+
+        // Update word choices based on current picture
+        function updateWordChoices() {
+            const scenario = scenarios[currentScenario];
+            
+            // Update WHO words
+            const whoWords = document.querySelector('.category-who .words');
+            whoWords.innerHTML = '';
+            scenario.who.forEach(word => {
+                const wordDiv = document.createElement('div');
+                wordDiv.className = 'word who';
+                wordDiv.textContent = word;
+                wordDiv.onclick = () => addWord('who', word);
+                whoWords.appendChild(wordDiv);
+            });
+            
+            // Update DOING words
+            const doingWords = document.querySelector('.category-doing .words');
+            doingWords.innerHTML = '';
+            scenario.doing.forEach(word => {
+                const wordDiv = document.createElement('div');
+                wordDiv.className = 'word doing';
+                wordDiv.textContent = word;
+                wordDiv.onclick = () => addWord('doing', word);
+                doingWords.appendChild(wordDiv);
+            });
+            
+            // Update WHERE words
+            const whereWords = document.querySelector('.category-where .words');
+            whereWords.innerHTML = '';
+            scenario.where.forEach(word => {
+                const wordDiv = document.createElement('div');
+                wordDiv.className = 'word where';
+                wordDiv.textContent = word;
+                wordDiv.onclick = () => addWord('where', word);
+                whereWords.appendChild(wordDiv);
+            });
+            
+            // Update WHEN words if the category exists
+            const whenCategory = document.querySelector('.category-when');
+            if (whenCategory) {
+                const whenWords = whenCategory.querySelector('.words');
+                whenWords.innerHTML = '';
+                scenario.when.forEach(word => {
+                    const wordDiv = document.createElement('div');
+                    wordDiv.className = 'word when';
+                    wordDiv.textContent = word;
+                    wordDiv.onclick = () => addWord('when', word);
+                    whenWords.appendChild(wordDiv);
+                });
+            }
+        }
+
+        // Add picture selector buttons
+        function changePicture(direction) {
+            if (direction === 'next') {
+                currentScenario = (currentScenario + 1) % scenarios.length;
+            } else {
+                currentScenario = (currentScenario - 1 + scenarios.length) % scenarios.length;
+            }
+            updatePicture();
+            clearTrain(false); // Clear without showing message
+            
+            // Reset additional cars counter but keep WHEN car if it exists
+            // We don't remove the car, just update its words
+            
+            // Show feedback for picture change
+            const scenario = scenarios[currentScenario];
+            showVisualFeedback(`New picture: ${scenario.description}!`);
+        }
+
+        // Select a train car
+        function selectCar(type) {
+            selectedCar = type;
+            
+            // Visual feedback
+            document.querySelectorAll('.train-car').forEach(car => {
+                car.style.transform = 'scale(1)';
+                car.style.border = 'none';
+            });
+            
+            const selected = document.querySelector(`.train-car.${type}`);
+            if (selected) {
+                selected.style.transform = 'scale(1.05)';
+                selected.style.border = '3px solid gold';
+            }
+        }
+
+        // Add word to train car
+        function addWord(type, word) {
+            // Add word to the appropriate car
+            trainData[type] = word;
+            document.getElementById(`${type}-content`).textContent = word;
+            document.getElementById(`${type}-content`).classList.remove('empty');
+            
+            // Update the car appearance
+            const car = document.querySelector(`.train-car.${type}`);
+            if (car) {
+                car.classList.remove('empty');
+                animateTrain();
+            }
+            
+            // Mark word as used
+            event.target.classList.add('used');
+            
+            // Visual and optional audio feedback
+            const carContent = document.getElementById(`${type}-content`);
+            carContent.style.animation = 'celebrate 0.5s';
+            setTimeout(() => {
+                carContent.style.animation = '';
+            }, 500);
+            
+            // Optional sound feedback (text-to-speech)
+            if (document.querySelector('.sound-btn').textContent === '🔊' && 'speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(word);
+                utterance.rate = 0.9;
+                utterance.pitch = 1.2;
+                utterance.volume = 0.7;
+                speechSynthesis.speak(utterance);
+            }
+            
+            // Update sentence display
+            updateSentenceDisplay();
+        }
+
+        // Update sentence display
+        function updateSentenceDisplay() {
+            const display = document.getElementById('completeSentence');
+            let sentence = '';
+            
+            if (trainData.who) sentence += trainData.who + ' ';
+            if (trainData.doing) sentence += trainData.doing + ' ';
+            if (trainData.where) sentence += trainData.where + ' ';
+            if (trainData.when) sentence += trainData.when + ' ';
+            if (trainData.describing) sentence += trainData.describing + ' ';
+            
+            if (sentence.trim()) {
+                sentence = sentence.trim() + '.';
+                display.textContent = sentence;
+            } else {
+                display.textContent = 'Click words to build your sentence train!';
+            }
+        }
+
+        // Animate train
+        function animateTrain() {
+            const train = document.getElementById('train');
+            train.classList.add('train-moving');
+            
+            setTimeout(() => {
+                train.classList.remove('train-moving');
+            }, 500);
+        }
+
+        // Read sentence aloud
+        function readSentence() {
+            const sentence = document.getElementById('completeSentence').textContent;
+            
+            if (sentence === 'Click words to build your sentence train!') {
+                showVisualFeedback('Build a sentence first!');
+                return;
+            }
+            
+            if ('speechSynthesis' in window) {
+                try {
+                    // Cancel any ongoing speech
+                    speechSynthesis.cancel();
+                    
+                    const utterance = new SpeechSynthesisUtterance(sentence);
+                    utterance.rate = 0.8; // Slower for learning
+                    utterance.pitch = 1.2; // Higher pitch for friendliness
+                    utterance.volume = 0.9;
+                    
+                    // Visual feedback while speaking
+                    const display = document.getElementById('completeSentence');
+                    display.style.color = '#e74c3c';
+                    display.style.animation = 'pulse 1s infinite';
+                    
+                    utterance.onend = () => {
+                        display.style.color = 'white';
+                        display.style.animation = '';
+                    };
+                    
+                    speechSynthesis.speak(utterance);
+                } catch (error) {
+                    console.log('Speech synthesis error:', error);
+                    showVisualFeedback('Reading aloud not available');
+                }
+            } else {
+                showVisualFeedback('Your browser does not support reading aloud');
+            }
+        }
+
+        // Add pulse animation
+        if (!document.querySelector('#pulseStyle')) {
+            const pulseStyle = document.createElement('style');
+            pulseStyle.id = 'pulseStyle';
+            pulseStyle.textContent = `
+                @keyframes pulse {
+                    0%, 100% { transform: scale(1); }
+                    50% { transform: scale(1.02); }
+                }
+            `;
+            document.head.appendChild(pulseStyle);
+        }
+
+        // Clear the train
+        function clearTrain(showFeedback = true) {
+            trainData = {
+                who: '',
+                doing: '',
+                where: '',
+                when: '',
+                describing: ''
+            };
+            
+            // Reset car contents
+            document.getElementById('who-content').textContent = '___';
+            document.getElementById('who-content').classList.add('empty');
+            document.getElementById('doing-content').textContent = '___';
+            document.getElementById('doing-content').classList.add('empty');
+            document.getElementById('where-content').textContent = '___';
+            document.getElementById('where-content').classList.add('empty');
+            
+            // Reset WHEN car if it exists
+            const whenContent = document.getElementById('when-content');
+            if (whenContent) {
+                whenContent.textContent = '___';
+                whenContent.classList.add('empty');
+            }
+            
+            // Reset word buttons - remove 'used' class from all words
+            document.querySelectorAll('.word').forEach(word => {
+                word.classList.remove('used');
+            });
+            
+            // Reset sentence display
+            updateSentenceDisplay();
+            
+            // Visual feedback
+            if (showFeedback) {
+                showVisualFeedback('Train cleared! Start fresh!');
+            }
+        }
+
+        // Check if sentence is complete
+        function checkSentence() {
+            if (trainData.who && trainData.doing) {
+                // Success!
+                celebrate();
+                
+                // Show message
+                const sentence = document.getElementById('completeSentence').textContent;
+                setTimeout(() => {
+                    alert('Great job! You made a sentence: ' + sentence);
+                }, 500);
+            } else {
+                alert('Your train needs at least WHO and DOING cars filled!');
+            }
+        }
+
+        // Add more train cars
+        function addTrainCar() {
+            // Check if WHEN car already exists
+            if (document.getElementById('when-content')) {
+                showVisualFeedback('Your train already has all cars!');
+                return;
+            }
+            
+            const train = document.getElementById('train');
+            
+            // Add WHEN car
+            const whenCar = document.createElement('div');
+            whenCar.className = 'train-car when empty';
+            whenCar.onclick = () => selectCar('when');
+            whenCar.innerHTML = `
+                <div class="car-label">WHEN?</div>
+                <div class="car-content empty" id="when-content">___</div>
+                <div class="wheels">
+                    <div class="wheel"></div>
+                    <div class="wheel"></div>
+                </div>
+            `;
+            train.appendChild(whenCar);
+            
+            // Add WHEN words for current scenario
+            addWhenWords();
+            
+            additionalCars++;
+            animateTrain();
+            showVisualFeedback('Added WHEN car! Make longer sentences!');
+        }
+
+        // Add WHEN category words
+        function addWhenWords() {
+            const categories = document.querySelector('.word-categories');
+            const scenario = scenarios[currentScenario];
+            
+            // Check if WHEN category already exists
+            let whenCategory = document.querySelector('.category-when');
+            if (!whenCategory) {
+                whenCategory = document.createElement('div');
+                whenCategory.className = 'word-category category-when';
+                categories.appendChild(whenCategory);
+            }
+            
+            whenCategory.innerHTML = `
+                <div class="category-title" style="background: #f39c12;">WHEN? (Time)</div>
+                <div class="words"></div>
+            `;
+            
+            const wordsContainer = whenCategory.querySelector('.words');
+            scenario.when.forEach(word => {
+                const wordDiv = document.createElement('div');
+                wordDiv.className = 'word when';
+                wordDiv.textContent = word;
+                wordDiv.onclick = () => addWord('when', word);
+                wordsContainer.appendChild(wordDiv);
+            });
+        }
+
+        // Celebration animation
+        function celebrate() {
+            const celebration = document.getElementById('successAnimation');
+            celebration.style.display = 'block';
+            
+            setTimeout(() => {
+                celebration.style.display = 'none';
+            }, 1000);
+        }
+
+
+        // Show visual feedback message
+        function showVisualFeedback(message) {
+            // Create or update feedback element
+            let feedback = document.getElementById('visualFeedback');
+            if (!feedback) {
+                feedback = document.createElement('div');
+                feedback.id = 'visualFeedback';
+                feedback.className = 'visual-feedback';
+                document.body.appendChild(feedback);
+            }
+            
+            feedback.textContent = message;
+            feedback.style.display = 'block';
+            
+            setTimeout(() => {
+                feedback.style.display = 'none';
+            }, 3000);
+        }
+
+        // Sound control function
+        function playSound() {
+            const btn = document.querySelector('.sound-btn');
+            
+            if ('speechSynthesis' in window) {
+                if (btn.textContent === '🔇') {
+                    // Turn sound ON
+                    btn.textContent = '🔊';
+                    btn.title = 'Click to turn sound off';
+                    showVisualFeedback('Sound is ON! 🔊');
+                    
+                    // Test speech
+                    const utterance = new SpeechSynthesisUtterance('Sound is on! Build your sentence train!');
+                    utterance.rate = 0.9;
+                    utterance.pitch = 1.2;
+                    speechSynthesis.speak(utterance);
+                } else {
+                    // Turn sound OFF
+                    btn.textContent = '🔇';
+                    btn.title = 'Click to turn sound on';
+                    speechSynthesis.cancel();
+                    showVisualFeedback('Sound is OFF! 🔇');
+                }
+            } else {
+                showVisualFeedback('Sound not supported in this browser - Game works without it!');
+                btn.style.display = 'none';
+            }
+        }
+
+        // Initialize on load
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
